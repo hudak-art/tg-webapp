@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Новое объявление</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      padding: 16px;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    label {
+      font-size: 14px;
+      opacity: .8;
+      display:block;
+      margin-bottom:4px;
+    }
+    input, textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 0;
+      padding: 10px 12px;
+      font-size: 15px;
+      background:#334155;
+      color:#fff;
+      outline:none;
+      margin-bottom:12px;
+    }
+    button {
+      width: 100%;
+      background:#38bdf8;
+      color:#000;
+      font-weight:600;
+      border:0;
+      border-radius:12px;
+      font-size:16px;
+      padding:12px 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 style="margin-top:0;margin-bottom:12px;font-size:18px;color:#fff;">
+      Добавить объявление
+    </h2>
+
+    <label>Название / что продаём</label>
+    <input id="title" placeholder="iPhone 13, почти новый" />
+
+    <label>Цена (что видеть в посте)</label>
+    <input id="price" placeholder="Цена: 12 500 грн" />
+
+    <label>Комиссия агенту</label>
+    <input id="fee" placeholder="Агенту: 500 грн с продажи" />
+
+    <label>Условия</label>
+    <input id="cond" placeholder="Самовывоз Измаил / могу отправить НП" />
+
+    <label>Описание для поста</label>
+    <textarea id="desc" rows="4" placeholder="Состояние идеал, без царапин..."></textarea>
+
+    <label>Фото (необязательно). Вставь ссылки на фото или file_id через запятую</label>
+    <textarea id="photos" rows="2" placeholder="https://... , https://..."></textarea>
+
+    <button id="sendBtn">Отправить в бота</button>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // растянуть окно на весь экран внутри телеги
+
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      const payload = {
+        title:  document.getElementById("title").value,
+        price:  document.getElementById("price").value,
+        fee:    document.getElementById("fee").value,
+        cond:   document.getElementById("cond").value,
+        desc:   document.getElementById("desc").value,
+        photos: document.getElementById("photos").value
+                 .split(",")
+                 .map(x => x.trim())
+                 .filter(x => x.length > 0),
+      };
+
+      // вот тут магия: мы шлём данные обратно боту
+      tg.sendData(JSON.stringify(payload));
+    });
+  </script>
+</body>
+</html>
