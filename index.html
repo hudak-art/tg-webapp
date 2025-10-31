@@ -7,6 +7,10 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
 />
 <title>Новое объявление</title>
+
+<!-- ВАЖНО: это даёт window.Telegram.WebApp -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
     body {
         background: #0f172a;
@@ -115,28 +119,28 @@
 
     <div class="group">
         <label for="title">Заголовок / что продаём</label>
-        <input id="title" placeholder="Пример: iPhone 13, идеальное состояние" />
+        <input id="title" placeholder="Пример: iPhone 13, идеал" />
     </div>
 
     <div class="row-2col">
         <div class="group">
             <label for="price">Цена</label>
-            <input id="price" placeholder="Например: 12 500 грн" />
+            <input id="price" placeholder="12 500 грн" />
         </div>
         <div class="group">
             <label for="fee">Агенту</label>
-            <input id="fee" placeholder="Например: 500 грн" />
+            <input id="fee" placeholder="500 грн" />
         </div>
     </div>
 
     <div class="group">
         <label for="cond">Условия</label>
-        <input id="cond" placeholder="Самовывоз / могу отправить НП" />
+        <input id="cond" placeholder="Измаил, самовывоз / могу отправить НП" />
     </div>
 
     <div class="group">
         <label for="desc">Описание</label>
-        <textarea id="desc" rows="4" placeholder="Состояние, комплектация, почему продаёшь..."></textarea>
+        <textarea id="desc" rows="4" placeholder="Состояние, комплектация, почему продаю..."></textarea>
     </div>
 
     <button class="send-btn" id="sendBtn">Отправить в бота</button>
@@ -144,57 +148,61 @@
     <small class="hint">
         После отправки бот:
         1) создаст пост в группе,<br/>
-        2) покажет тебе объявления и площадки в приватном чате,<br/>
-        3) попросит фото (пришлёшь отдельно).
+        2) пришлёт тебе в личку карточку товара и список площадок,<br/>
+        3) попросит тебя дальше.
     </small>
 
     <div class="footer">
         Это окно Telegram WebApp.<br/>
-        Просто закрой после отправки.
+        После отправки можно закрыть.
     </div>
 </div>
 
 <script>
+    // Берём объект WebApp из Telegram
     const tg = window.Telegram && window.Telegram.WebApp
         ? window.Telegram.WebApp
         : null;
 
+    // Если мы реально открыты внутри Telegram (/new), tg будет не null
     if (tg) {
-        tg.expand(); // занять максимум высоты
-        tg.enableClosingConfirmation();
+        tg.expand(); // растянуть на всю высоту
+        tg.enableClosingConfirmation(); // спросит при закрытии с незасланными данными
     }
 
     const sendBtn = document.getElementById("sendBtn");
 
     sendBtn.addEventListener("click", () => {
+        // Собираем данные формы
         const title = document.getElementById("title").value.trim();
         const price = document.getElementById("price").value.trim();
         const fee   = document.getElementById("fee").value.trim();
         const cond  = document.getElementById("cond").value.trim();
         const desc  = document.getElementById("desc").value.trim();
 
-        // Если потом захочешь слать file_id фоток через форму —
-        // добавишь сюда массив photos.
         const payload = {
             title: title,
             price: price,
-            fee: fee,
-            cond: cond,
-            desc: desc
+            fee:   fee,
+            cond:  cond,
+            desc:  desc
+            // photos: []  // если потом добавим поддержку file_id фоток
         };
 
         if (!tg) {
-            alert("Telegram.WebApp не инициализирован. Открой через бота /new.");
+            alert("Telegram.WebApp не инициализирован. Открой через бота /new в Telegram, а не через браузер.");
             return;
         }
 
-        // блокируем кнопку чтоб не спамили
+        // Блокируем кнопку, чтобы не спамили
         sendBtn.disabled = true;
         sendBtn.textContent = "Отправляю...";
 
         try {
+            // Отправляем JSON прямо в бот (хендлер F.web_app_data)
             tg.sendData(JSON.stringify(payload));
-            // Закрываем WebApp для пользователя
+
+            // Закрываем форму обратно
             tg.close();
         } catch (e) {
             alert("Ошибка отправки в бота: " + e.message);
