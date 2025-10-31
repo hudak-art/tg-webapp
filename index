@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Новое объявление</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      padding: 16px;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    h2 {
+      margin-top:0;
+      margin-bottom:16px;
+      font-size:18px;
+      color:#fff;
+      font-weight:600;
+      line-height:1.3;
+    }
+    label {
+      font-size: 14px;
+      opacity: .8;
+      display:block;
+      margin-bottom:4px;
+    }
+    input, textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 0;
+      padding: 10px 12px;
+      font-size: 15px;
+      background:#334155;
+      color:#fff;
+      outline:none;
+      margin-bottom:12px;
+    }
+    button {
+      width: 100%;
+      background:#38bdf8;
+      color:#000;
+      font-weight:600;
+      border:0;
+      border-radius:12px;
+      font-size:16px;
+      padding:12px 16px;
+    }
+    small {
+      font-size:12px;
+      opacity:.6;
+      display:block;
+      margin-top:-8px;
+      margin-bottom:12px;
+      line-height:1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Добавить объявление</h2>
+
+    <label>Что продаём / Название товара</label>
+    <input id="title" placeholder="iPhone 13, почти новый" />
+
+    <label>Цена</label>
+    <input id="price" placeholder="12500 грн" />
+    <small>Это попадёт как 'Цена: ...' в пост</small>
+
+    <label>Сколько получает агент</label>
+    <input id="fee" placeholder="500 грн с продажи" />
+    <small>Это попадёт как 'Агенту: ...'</small>
+
+    <label>Условия</label>
+    <input id="cond" placeholder="Измаил, самовывоз / могу отправить НП" />
+    <small>Это попадёт как 'Условия: ...'</small>
+
+    <label>Описание</label>
+    <textarea id="desc" rows="4" placeholder="Состояние идеал, без царапин..."></textarea>
+
+    <label>Фото (по желанию)</label>
+    <textarea id="photos" rows="2" placeholder="file_id или ссылка через запятую
+например:
+AgACAgQAAxkBA... , https://i.imgur.com/xxx.jpg"></textarea>
+    <small>Можно одно фото, можно несколько. Если пусто — пост будет без фото.</small>
+
+    <button id="sendBtn">Отправить в бота</button>
+  </div>
+
+  <script>
+    // Берём API Телеграма
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+
+    // Разворачиваем на весь экран, если мы действительно внутри Telegram
+    if (tg) {
+      tg.expand();
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", () => {
+      // Собираем данные из формы
+      const payload = {
+        title:  document.getElementById("title").value,
+        price:  document.getElementById("price").value,
+        fee:    document.getElementById("fee").value,
+        cond:   document.getElementById("cond").value,
+        desc:   document.getElementById("desc").value,
+        photos: document.getElementById("photos").value
+                 .split(",")
+                 .map(x => x.trim())
+                 .filter(x => x.length > 0),
+      };
+
+      // Если форма открыта НЕ через кнопку бота (просто в браузере),
+      // tg будет null. Тогда мы не можем отправить в Telegram.
+      if (!tg) {
+        alert("Эта форма должна быть открыта через кнопку бота в Telegram (/new), а не через браузер.");
+        return;
+      }
+
+      // Отправляем данные обратно в бота
+      tg.sendData(JSON.stringify(payload));
+
+      // Дадим визуально фидбэк и закроем окно.
+      // Так пользователь сразу вернётся в чат с ботом,
+      // а бот ему напишет "Пост создан..." и меню площадок.
+      alert("Отправлено боту ✅");
+      tg.close();
+    });
+  </script>
+</body>
+</html>
