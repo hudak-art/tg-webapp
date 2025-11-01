@@ -4,9 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport"
       content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
-<title>Telegram WebApp DEBUG</title>
+<title>Telegram WebApp DEBUG v2</title>
 
-<!-- ВАЖНО: без этого файла window.Telegram.WebApp не существует -->
+<!-- ОФИЦИАЛЬНЫЙ скрипт Telegram WebApp API -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
@@ -48,7 +48,7 @@
         color: #38bdf8;
         white-space: pre-wrap;
         word-break: break-word;
-        max-height: 200px;
+        max-height: 220px;
         overflow-y: auto;
         margin-bottom: 12px;
     }
@@ -67,15 +67,17 @@
 </head>
 <body>
 <div class="card">
-    <h1>Telegram WebApp DEBUG</h1>
+    <h1>Telegram WebApp DEBUG v2</h1>
 
-    <div id="statusBox" class="box">status loading…</div>
-    <div id="userBox" class="box">user info…</div>
+    <div class="box" id="infoBox">info loading…</div>
+    <div class="box" id="statusBox">status loading…</div>
+    <div class="box" id="userBox">user info…</div>
 
     <button id="btnSend">TEST sendData()</button>
 </div>
 
 <script>
+// просто удобная функция
 function getTg() {
     if (window.Telegram && window.Telegram.WebApp) {
         return window.Telegram.WebApp;
@@ -83,34 +85,49 @@ function getTg() {
     return null;
 }
 
-function renderStatus() {
+// отрисовать полную инфу
+function renderAll() {
+    const infoBox   = document.getElementById("infoBox");
     const statusBox = document.getElementById("statusBox");
     const userBox   = document.getElementById("userBox");
 
-    let lines = [];
+    // 1. Покажем нам базу окружения
+    const linesInfo = [];
+    linesInfo.push("location.href:");
+    linesInfo.push(location.href);
+    linesInfo.push("");
+    linesInfo.push("navigator.userAgent:");
+    linesInfo.push(navigator.userAgent);
+    linesInfo.push("");
+    linesInfo.push("Date.now(): " + Date.now());
+    infoBox.textContent = linesInfo.join("\n");
 
+    // 2. Проверим window.Telegram и Telegram.WebApp
+    const linesStatus = [];
     if (window.Telegram) {
-        lines.push("window.Telegram: OK ✅");
+        linesStatus.push("window.Telegram: OK ✅");
         if (window.Telegram.WebApp) {
             const wa = window.Telegram.WebApp;
-            lines.push("Telegram.WebApp: OK ✅");
-            lines.push("platform: " + (wa.platform || "none"));
-            lines.push("colorScheme: " + (wa.colorScheme || "none"));
-            lines.push("initData length: " + (wa.initData ? wa.initData.length : "null"));
+            linesStatus.push("Telegram.WebApp: OK ✅");
+            linesStatus.push("platform: " + (wa.platform || "none"));
+            linesStatus.push("colorScheme: " + (wa.colorScheme || "none"));
+            linesStatus.push("initData length: " + (wa.initData ? wa.initData.length : "null"));
         } else {
-            lines.push("Telegram.WebApp: MISSING ❌");
+            linesStatus.push("Telegram.WebApp: MISSING ❌");
         }
     } else {
-        lines.push("window.Telegram: MISSING ❌");
+        linesStatus.push("window.Telegram: MISSING ❌");
+        linesStatus.push("=> или страница кешнулась старая без API-скрипта,");
+        linesStatus.push("   или это не официальный Telegram WebApp режим.");
     }
+    statusBox.textContent = linesStatus.join("\n");
 
-    statusBox.textContent = lines.join("\n");
-
+    // 3. user info
     const tg = getTg();
     if (tg && tg.initDataUnsafe) {
         const unsafe = tg.initDataUnsafe;
         const u = unsafe.user || {};
-        let uLines = [];
+        const uLines = [];
         uLines.push("user.id: " + (u.id || "none"));
         uLines.push("user.username: " + (u.username || "none"));
         uLines.push("user.first_name: " + (u.first_name || "none"));
@@ -119,7 +136,7 @@ function renderStatus() {
     } else {
         userBox.textContent =
             "initDataUnsafe.user отсутствует.\n" +
-            "(Значит Telegram не передал данные пользователя)";
+            "(Telegram не дал данные пользователя в окно)";
     }
 }
 
@@ -131,20 +148,20 @@ document.addEventListener("DOMContentLoaded", () => {
         try { tg.enableClosingConfirmation(); } catch(e){}
     }
 
-    renderStatus();
-    setTimeout(renderStatus, 400);
-    setTimeout(renderStatus, 1000);
+    renderAll();
+    setTimeout(renderAll, 400);
+    setTimeout(renderAll, 1200);
 });
 
 document.getElementById("btnSend").addEventListener("click", () => {
     const tg = getTg();
     if (!tg) {
-        alert("sendData: Telegram.WebApp = null (значит это не WebApp режим)");
+        alert("sendData: Telegram.WebApp = null (значит это НЕ web_app режим для Telegram)");
         return;
     }
     try {
-        tg.sendData(JSON.stringify({test:"hello_from_debug"}));
-        alert("tg.sendData() отправлено.\nСмотри у бота сообщение (F.web_app_data).");
+        tg.sendData(JSON.stringify({test:"hello_from_debug_v2"}));
+        alert("tg.sendData() отправлено. Смотри у бота сообщение с web_app_data.");
     } catch(e) {
         alert("Ошибка tg.sendData: " + e.message);
     }
