@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>DEBUG Telegram WebApp</title>
+<style>
+    body {
+        background: #0f172a;
+        color: #f8fafc;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                     Roboto, "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 16px;
+    }
+    .card {
+        background: #1e293b;
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid #334155;
+        max-width: 480px;
+        margin: 0 auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,.6);
+        font-size: 14px;
+        line-height: 1.4;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+    h1 {
+        font-size: 18px;
+        margin: 0 0 12px;
+        font-weight: 600;
+        color: #fff;
+        text-align: center;
+    }
+    .box {
+        background: #0f172a;
+        border: 1px solid #475569;
+        border-radius: 8px;
+        padding: 12px;
+        font-family: monospace;
+        font-size: 12px;
+        color: #38bdf8;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 200px;
+        overflow-y: auto;
+        margin-bottom: 12px;
+    }
+    button {
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        padding: 12px;
+        margin-top: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(90deg,#0ea5e9,#6366f1);
+    }
+</style>
+</head>
+<body>
+<div class="card">
+    <h1>Telegram WebApp DEBUG</h1>
+
+    <div id="statusBox" class="box">status loading…</div>
+    <div id="userBox" class="box">user info…</div>
+
+    <button id="btnSend">TEST sendData()</button>
+</div>
+
+<script>
+function getTg() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        return window.Telegram.WebApp;
+    }
+    return null;
+}
+
+// выводим текущий статус в блоки
+function renderStatus() {
+    const statusBox = document.getElementById("statusBox");
+    const userBox   = document.getElementById("userBox");
+
+    let lines = [];
+
+    if (window.Telegram) {
+        lines.push("window.Telegram: OK");
+        if (window.Telegram.WebApp) {
+            lines.push("Telegram.WebApp: OK");
+            lines.push("platform: " + (window.Telegram.WebApp.platform || "none"));
+            lines.push("colorScheme: " + (window.Telegram.WebApp.colorScheme || "none"));
+            lines.push("initData length: " +
+                (window.Telegram.WebApp.initData
+                 ? window.Telegram.WebApp.initData.length
+                 : "null"));
+        } else {
+            lines.push("Telegram.WebApp: MISSING ❌");
+        }
+    } else {
+        lines.push("window.Telegram: MISSING ❌");
+    }
+
+    statusBox.textContent = lines.join("\n");
+
+    // инфо о юзере (должно прийти от телеграма, если это реальный web_app)
+    const tg = getTg();
+    if (tg && tg.initDataUnsafe) {
+        const unsafe = tg.initDataUnsafe;
+        let u = unsafe.user || {};
+        let uLines = [];
+        uLines.push("user.id: " + (u.id || "none"));
+        uLines.push("user.username: " + (u.username || "none"));
+        uLines.push("user.first_name: " + (u.first_name || "none"));
+        uLines.push("user.language_code: " + (u.language_code || "none"));
+        userBox.textContent = uLines.join("\n");
+    } else {
+        userBox.textContent = "initDataUnsafe.user отсутствует.\n(Значит Telegram не передал данные пользователя)";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const tg = getTg();
+    if (tg) {
+        try { tg.ready(); } catch (e) {}
+        try { tg.expand(); } catch (e) {}
+        try { tg.enableClosingConfirmation(); } catch (e) {}
+    }
+
+    // подождём чуть-чуть и обновим статус два раза
+    renderStatus();
+    setTimeout(renderStatus, 500);
+    setTimeout(renderStatus, 1500);
+});
+
+document.getElementById("btnSend").addEventListener("click", () => {
+    const tg = getTg();
+    if (!tg) {
+        alert("sendData: Telegram.WebApp = null (значит это НЕ Mini App по мнению Telegram)");
+        return;
+    }
+    try {
+        tg.sendData(JSON.stringify({test:"hello_from_debug"}));
+        alert("sendData ушёл. Если бот слушает F.web_app_data, он должен получить это.");
+        // И НЕ закрываем окно специально — чисто тест
+    } catch(e) {
+        alert("Ошибка tg.sendData: " + e.message);
+    }
+});
+</script>
+</body>
+</html>
