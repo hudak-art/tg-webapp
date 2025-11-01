@@ -75,6 +75,22 @@
         margin-bottom: 0;
     }
 
+    /* превью фото */
+    .preview-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    .preview-wrap img {
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #475569;
+        box-shadow: 0 10px 20px rgba(0,0,0,.5);
+    }
+
     button.send-btn {
         width: 100%;
         background: linear-gradient(90deg,#0ea5e9,#6366f1);
@@ -139,18 +155,25 @@
         <textarea id="desc" rows="4" placeholder="Состояние, комплектация, почему продаёшь..."></textarea>
     </div>
 
+    <div class="group">
+        <label for="photos">Фото (галерея)</label>
+        <input id="photos" type="file" accept="image/*" multiple />
+        <div id="preview" class="preview-wrap"></div>
+        <small class="hint">
+            Эти фото реально пойдут в объявление.<br/>
+            После отправки формы бот попросит кинуть их ему в чат (как альбом), и сразу опубликует пост уже с фото.
+        </small>
+    </div>
+
     <button class="send-btn" id="sendBtn">Отправить в бота</button>
 
     <small class="hint">
-        После отправки бот:
-        1) создаст пост в группе,<br/>
-        2) покажет тебе объявления и площадки в приватном чате,<br/>
-        3) попросит фото (пришлёшь отдельно).
+        После этого бот покажет в личке превью объявления и попросит фото, если они есть.
     </small>
 
     <div class="footer">
         Это окно Telegram WebApp.<br/>
-        Просто закрой после отправки.
+        Можно закрыть после отправки.
     </div>
 </div>
 
@@ -164,7 +187,25 @@
         tg.enableClosingConfirmation();
     }
 
-    const sendBtn = document.getElementById("sendBtn");
+    const photosInput = document.getElementById("photos");
+    const previewBox  = document.getElementById("preview");
+    const sendBtn     = document.getElementById("sendBtn");
+
+    // показываем миниатюры выбранных фото
+    photosInput.addEventListener("change", () => {
+        previewBox.innerHTML = "";
+        const files = photosInput.files;
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                previewBox.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
 
     sendBtn.addEventListener("click", () => {
         const title = document.getElementById("title").value.trim();
@@ -173,29 +214,37 @@
         const cond  = document.getElementById("cond").value.trim();
         const desc  = document.getElementById("desc").value.trim();
 
-        // Если потом захочешь слать file_id фоток через форму —
-        // добавишь сюда массив photos.
+        const photosCount = photosInput.files.length;
+
+        // Подготовим полезную нагрузку
         const payload = {
             title: title,
             price: price,
-            fee: fee,
-            cond: cond,
-            desc: desc
+            fee:   fee,
+            cond:  cond,
+            desc:  desc,
+            photosCount: photosCount
+            // сами фото не отправляем, Telegram WebApp не даёт
+            // отправить большие файлы через sendData
         };
 
         if (!tg) {
-            alert("Telegram.WebApp не инициализирован. Открой через бота /new.");
+            alert("Telegram.WebApp не инициализирован. Открой форму через команду /new в боте.");
             return;
         }
 
-        // блокируем кнопку чтоб не спамили
         sendBtn.disabled = true;
         sendBtn.textContent = "Отправляю...";
 
         try {
             tg.sendData(JSON.stringify(payload));
-            // Закрываем WebApp для пользователя
-            tg.close();
+
+            // ОЧЕНЬ ВАЖНО:
+            // не закрываем окно мгновенно.
+            // даём Telegram успеть отправить данные боту.
+            setTimeout(() => {
+                tg.close();
+            }, 400);
         } catch (e) {
             alert("Ошибка отправки в бота: " + e.message);
             sendBtn.disabled = false;
