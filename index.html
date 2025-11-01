@@ -161,7 +161,8 @@
         <div id="preview" class="preview-wrap"></div>
         <small class="hint">
             Эти фото реально пойдут в объявление.<br/>
-            После отправки формы бот попросит кинуть их ему в чат (как альбом), и сразу опубликует пост уже с фото.
+            После отправки формы бот попросит кинуть их ему в чат (как альбом),<br/>
+            и сразу опубликует пост уже с фото.
         </small>
     </div>
 
@@ -178,14 +179,26 @@
 </div>
 
 <script>
-    const tg = window.Telegram && window.Telegram.WebApp
-        ? window.Telegram.WebApp
-        : null;
-
-    if (tg) {
-        tg.expand(); // занять максимум высоты
-        tg.enableClosingConfirmation();
+    // Функция, которая каждый раз берёт актуальный объект Telegram.WebApp
+    function getTg() {
+        if (window.Telegram && window.Telegram.WebApp) {
+            return window.Telegram.WebApp;
+        }
+        return null;
     }
+
+    // Попробуем инициализировать интерфейс Телеграма после загрузки
+    document.addEventListener("DOMContentLoaded", () => {
+        const tg = getTg();
+        if (tg) {
+            // говорим Telegram "страница готова"
+            try { tg.ready(); } catch (e) {}
+            // просим занять максимум высоты
+            try { tg.expand(); } catch (e) {}
+            // чтоб случайно не закрыли без отправки
+            try { tg.enableClosingConfirmation(); } catch (e) {}
+        }
+    });
 
     const photosInput = document.getElementById("photos");
     const previewBox  = document.getElementById("preview");
@@ -208,6 +221,10 @@
     });
 
     sendBtn.addEventListener("click", () => {
+        // Берём tg заново в момент клика,
+        // а не используем старую переменную, которая могла быть null
+        const tg = getTg();
+
         const title = document.getElementById("title").value.trim();
         const price = document.getElementById("price").value.trim();
         const fee   = document.getElementById("fee").value.trim();
@@ -216,7 +233,6 @@
 
         const photosCount = photosInput.files.length;
 
-        // Подготовим полезную нагрузку
         const payload = {
             title: title,
             price: price,
@@ -224,12 +240,16 @@
             cond:  cond,
             desc:  desc,
             photosCount: photosCount
-            // сами фото не отправляем, Telegram WebApp не даёт
-            // отправить большие файлы через sendData
+            // сами фото не шлём (Telegram WebApp не даёт отправлять бинарные файлы через sendData)
         };
 
+        // если по какой-то причине tg не доступен (например, ты реально
+        // открыл через обычный браузер) — алерт.
         if (!tg) {
-            alert("Telegram.WebApp не инициализирован. Открой форму через команду /new в боте.");
+            alert(
+                "Telegram.WebApp не инициализирован. " +
+                "Открой форму через команду /new в боте."
+            );
             return;
         }
 
@@ -237,13 +257,13 @@
         sendBtn.textContent = "Отправляю...";
 
         try {
+            // отправляем JSON в бота
             tg.sendData(JSON.stringify(payload));
 
-            // ОЧЕНЬ ВАЖНО:
-            // не закрываем окно мгновенно.
-            // даём Telegram успеть отправить данные боту.
+            // даём Телеграму долю секунды чтобы отправить данные,
+            // и только потом закрываем окно
             setTimeout(() => {
-                tg.close();
+                try { tg.close(); } catch (e) {}
             }, 400);
         } catch (e) {
             alert("Ошибка отправки в бота: " + e.message);
