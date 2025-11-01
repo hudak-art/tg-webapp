@@ -2,126 +2,122 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
-/>
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
 <title>Новое объявление</title>
+
+<!-- ОБЯЗАТЕЛЬНО: без этого Telegram.WebApp не появится -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
 <style>
     body {
         background: #0f172a;
         color: #f8fafc;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-                     Roboto, "Helvetica Neue", Arial, sans-serif;
-        margin: 0;
-        padding: 16px;
+        font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",
+                     Roboto,"Helvetica Neue",Arial,sans-serif;
+        margin:0;
+        padding:16px;
     }
 
     .card {
-        background: #1e293b;
-        border-radius: 16px;
-        padding: 16px;
-        box-shadow: 0 20px 60px rgba(0,0,0,.6);
-        border: 1px solid #334155;
-        max-width: 480px;
-        margin: 0 auto;
+        background:#1e293b;
+        border-radius:16px;
+        padding:16px;
+        box-shadow:0 20px 60px rgba(0,0,0,.6);
+        border:1px solid #334155;
+        max-width:480px;
+        margin:0 auto;
     }
 
     h1 {
-        font-size: 18px;
-        margin: 0 0 12px;
-        font-weight: 600;
-        color: #fff;
-        text-align: center;
+        font-size:18px;
+        margin:0 0 12px;
+        font-weight:600;
+        color:#fff;
+        text-align:center;
     }
 
     label {
-        font-size: 13px;
-        font-weight: 500;
-        color: #cbd5e1;
-        display: block;
-        margin-bottom: 4px;
+        font-size:13px;
+        font-weight:500;
+        color:#cbd5e1;
+        display:block;
+        margin-bottom:4px;
     }
 
-    input,
-    textarea {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid #475569;
-        background: #0f172a;
-        padding: 10px 12px;
-        font-size: 14px;
-        color: #f8fafc;
-        outline: none;
-        box-sizing: border-box;
+    input,textarea {
+        width:100%;
+        border-radius:10px;
+        border:1px solid #475569;
+        background:#0f172a;
+        padding:10px 12px;
+        font-size:14px;
+        color:#f8fafc;
+        outline:none;
+        box-sizing:border-box;
+    }
+    input:focus,textarea:focus {
+        border-color:#38bdf8;
+        box-shadow:0 0 0 2px rgba(56,189,248,.2);
     }
 
-    input:focus,
-    textarea:focus {
-        border-color: #38bdf8;
-        box-shadow: 0 0 0 2px rgba(56,189,248,.2);
-    }
-
-    .group {
-        margin-bottom: 12px;
-    }
+    .group { margin-bottom:12px; }
 
     .row-2col {
-        display: flex;
-        gap: 12px;
+        display:flex;
+        gap:12px;
     }
     .row-2col .group {
-        flex: 1;
-        margin-bottom: 0;
+        flex:1;
+        margin-bottom:0;
     }
 
-    /* превью фото */
     .preview-wrap {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 8px;
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+        margin-top:8px;
     }
     .preview-wrap img {
-        width: 64px;
-        height: 64px;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 1px solid #475569;
-        box-shadow: 0 10px 20px rgba(0,0,0,.5);
+        width:64px;
+        height:64px;
+        object-fit:cover;
+        border-radius:8px;
+        border:1px solid #475569;
+        box-shadow:0 10px 20px rgba(0,0,0,.5);
     }
 
     button.send-btn {
-        width: 100%;
-        background: linear-gradient(90deg,#0ea5e9,#6366f1);
-        border: 0;
-        border-radius: 12px;
-        padding: 12px;
-        color: #fff;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 16px 40px rgba(14,165,233,.4);
+        width:100%;
+        background:linear-gradient(90deg,#0ea5e9,#6366f1);
+        border:0;
+        border-radius:12px;
+        padding:12px;
+        color:#fff;
+        font-size:15px;
+        font-weight:600;
+        cursor:pointer;
+        box-shadow:0 16px 40px rgba(14,165,233,.4);
     }
     button.send-btn:active {
-        transform: scale(.98);
+        transform:scale(.98);
     }
 
     small.hint {
-        display: block;
-        font-size: 12px;
-        line-height: 1.4;
-        color: #94a3b8;
-        margin-top: 8px;
-        text-align: center;
+        display:block;
+        font-size:12px;
+        line-height:1.4;
+        color:#94a3b8;
+        margin-top:8px;
+        text-align:center;
     }
 
     .footer {
-        font-size: 11px;
-        color: #475569;
-        text-align: center;
-        margin-top: 16px;
-        line-height: 1.4;
+        font-size:11px;
+        color:#475569;
+        text-align:center;
+        margin-top:16px;
+        line-height:1.4;
     }
 </style>
 </head>
@@ -147,16 +143,17 @@
 
     <div class="group">
         <label for="cond">Условия</label>
-        <input id="cond" placeholder="Самовывоз / могу отправить НП" />
+        <input id="cond" placeholder="Самовывоз / могу отправить НП / Измаил" />
     </div>
 
     <div class="group">
         <label for="desc">Описание</label>
-        <textarea id="desc" rows="4" placeholder="Состояние, комплектация, почему продаёшь..."></textarea>
+        <textarea id="desc" rows="4"
+            placeholder="Состояние, комплектация, почему продаёшь..."></textarea>
     </div>
 
     <div class="group">
-        <label for="photos">Фото (галерея)</label>
+        <label for="photos">Фото (галерея, не обязательно)</label>
         <input id="photos" type="file" accept="image/*" multiple />
         <div id="preview" class="preview-wrap"></div>
         <small class="hint">
@@ -169,7 +166,8 @@
     <button class="send-btn" id="sendBtn">Отправить в бота</button>
 
     <small class="hint">
-        После этого бот покажет в личке превью объявления и попросит фото, если они есть.
+        После этого бот пришлёт черновик объявления в личку и попросит фото.
+        Если фото нет — просто напиши ему "БЕЗ ФОТО".
     </small>
 
     <div class="footer">
@@ -179,7 +177,10 @@
 </div>
 
 <script>
-    // Функция, которая каждый раз берёт актуальный объект Telegram.WebApp
+// обёртка чтобы ничего не утекало в глобальный scope
+(function () {
+
+    // берём объект Telegram.WebApp, если он есть
     function getTg() {
         if (window.Telegram && window.Telegram.WebApp) {
             return window.Telegram.WebApp;
@@ -187,29 +188,34 @@
         return null;
     }
 
-    // Попробуем инициализировать интерфейс Телеграма после загрузки
-    document.addEventListener("DOMContentLoaded", () => {
-        const tg = getTg();
-        if (tg) {
-            // говорим Telegram "страница готова"
-            try { tg.ready(); } catch (e) {}
-            // просим занять максимум высоты
-            try { tg.expand(); } catch (e) {}
-            // чтоб случайно не закрыли без отправки
-            try { tg.enableClosingConfirmation(); } catch (e) {}
-        }
-    });
+    // инициализация как советует Telegram
+    const tg = getTg();
+    if (tg) {
+        try { tg.ready(); } catch(e){}
+        try { tg.expand(); } catch(e){}
+        // эта штука просит подтверждение при закрытии
+        // если пользователь что-то заполнил
+        try { tg.enableClosingConfirmation(); } catch(e){}
+    }
 
+    // элементы формы
+    const titleInput  = document.getElementById("title");
+    const priceInput  = document.getElementById("price");
+    const feeInput    = document.getElementById("fee");
+    const condInput   = document.getElementById("cond");
+    const descInput   = document.getElementById("desc");
     const photosInput = document.getElementById("photos");
+
     const previewBox  = document.getElementById("preview");
     const sendBtn     = document.getElementById("sendBtn");
 
-    // показываем миниатюры выбранных фото
+    // превью фоток (только локально для визуала)
     photosInput.addEventListener("change", () => {
         previewBox.innerHTML = "";
         const files = photosInput.files;
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
+
             const reader = new FileReader();
             reader.onload = (e) => {
                 const img = document.createElement("img");
@@ -220,57 +226,51 @@
         }
     });
 
+    // отправка данных в бота
     sendBtn.addEventListener("click", () => {
-        // Берём tg заново в момент клика,
-        // а не используем старую переменную, которая могла быть null
-        const tg = getTg();
-
-        const title = document.getElementById("title").value.trim();
-        const price = document.getElementById("price").value.trim();
-        const fee   = document.getElementById("fee").value.trim();
-        const cond  = document.getElementById("cond").value.trim();
-        const desc  = document.getElementById("desc").value.trim();
-
-        const photosCount = photosInput.files.length;
+        const tgNow = getTg();
 
         const payload = {
-            title: title,
-            price: price,
-            fee:   fee,
-            cond:  cond,
-            desc:  desc,
-            photosCount: photosCount
-            // сами фото не шлём (Telegram WebApp не даёт отправлять бинарные файлы через sendData)
+            title: titleInput.value.trim(),
+            price: priceInput.value.trim(),
+            fee:   feeInput.value.trim(),
+            cond:  condInput.value.trim(),
+            desc:  descInput.value.trim(),
+            // сюда не пихаем сами картинки, просто считаем
+            photosCount: photosInput.files.length
         };
 
-        // если по какой-то причине tg не доступен (например, ты реально
-        // открыл через обычный браузер) — алерт.
-        if (!tg) {
+        if (!tgNow) {
             alert(
-                "Telegram.WebApp не инициализирован. " +
-                "Открой форму через команду /new в боте."
+                "Telegram.WebApp не инициализирован.\n" +
+                "Открой эту форму через /new у бота, " +
+                "а не через обычный браузер."
             );
             return;
         }
 
+        // визуально показываем, что пошла отправка
         sendBtn.disabled = true;
         sendBtn.textContent = "Отправляю...";
 
         try {
-            // отправляем JSON в бота
-            tg.sendData(JSON.stringify(payload));
-
-            // даём Телеграму долю секунды чтобы отправить данные,
-            // и только потом закрываем окно
-            setTimeout(() => {
-                try { tg.close(); } catch (e) {}
-            }, 400);
-        } catch (e) {
-            alert("Ошибка отправки в бота: " + e.message);
+            // шлём данные в бота
+            tgNow.sendData(JSON.stringify(payload));
+        } catch (err) {
+            alert("Ошибка отправки в бота: " + err.message);
             sendBtn.disabled = false;
             sendBtn.textContent = "Отправить в бота";
+            return;
         }
+
+        // даём Телеграму время отправить sendData,
+        // потом закрываем приложение
+        setTimeout(() => {
+            try { tgNow.close(); } catch(e){}
+        }, 300);
     });
+
+})();
 </script>
 </body>
 </html>
