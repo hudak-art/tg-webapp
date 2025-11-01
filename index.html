@@ -4,9 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport"
       content="width=device-width,initial-scale=1.0,maximum-scale=1.0" />
-<title>Кабинет агента</title>
+<title>Кабинет</title>
 
-<!-- Скрипт Telegram WebApp API -->
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
@@ -51,6 +50,7 @@
         font-weight:600;
         color:var(--fg-main);
         text-align:center;
+        word-break:break-word;
     }
 
     .sub{
@@ -77,13 +77,14 @@
         color:var(--fg-main);
         margin-bottom:8px;
         line-height:1.4;
+        word-break:break-word;
     }
 
-    .line{
+    .rowline{
         margin-bottom:6px;
     }
 
-    .line b{
+    .rowline b{
         color:var(--fg-main);
     }
 
@@ -107,14 +108,6 @@
         margin-top:8px;
     }
 
-    .footer{
-        font-size:11px;
-        color:var(--fg-dim);
-        text-align:center;
-        margin-top:16px;
-        line-height:1.4;
-    }
-
     .pill-row{
         display:flex;
         flex-wrap:wrap;
@@ -131,124 +124,412 @@
         border:1px solid rgba(67,56,202,.15);
         font-weight:500;
     }
+
+    .footer{
+        font-size:11px;
+        color:var(--fg-dim);
+        text-align:center;
+        margin-top:16px;
+        line-height:1.4;
+        word-break:break-word;
+    }
+
+    /* списки */
+    .mini-post{
+        background:white;
+        border:1px solid var(--border);
+        border-radius:var(--radius-box);
+        padding:10px 12px;
+        font-size:12px;
+        margin-bottom:8px;
+        line-height:1.4;
+    }
+    .mini-post .head{
+        font-weight:600;
+        font-size:12px;
+        margin-bottom:4px;
+        color:#0f172a;
+        word-break:break-word;
+    }
+    .mini-post .meta{
+        font-size:12px;
+        color:#475569;
+        margin-bottom:4px;
+        word-break:break-word;
+    }
+    .mini-post .res-header{
+        font-size:12px;
+        font-weight:600;
+        color:#0f172a;
+        margin-top:6px;
+        margin-bottom:2px;
+    }
+    .mini-post .res-row{
+        font-size:12px;
+        color:#334155;
+        margin-bottom:4px;
+        word-break:break-word;
+    }
+
+    .table-block{
+        font-size:12px;
+        background:#fff;
+        border:1px solid var(--border);
+        border-radius:var(--radius-box);
+        padding:10px 12px;
+        margin-top:8px;
+        line-height:1.4;
+        word-break:break-word;
+    }
+    .table-row{
+        margin-bottom:6px;
+    }
+    .table-row strong{
+        color:#0f172a;
+    }
+
 </style>
 </head>
 <body>
 
-<div class="card" id="card-main">
+<!-- КАБИНЕТ АГЕНТА -->
+<div class="card" id="agentCard" style="display:none;">
     <h1>Кабинет агента</h1>
-    <div class="sub" id="userLine">Загрузка...</div>
+    <div class="sub" id="agentUserLine">Загрузка...</div>
 
     <div class="block-title">Твой статус</div>
-    <div class="box" id="statusBox">
-        <div class="line">
-            Уровень: <b id="levelText">смотри /whoami в боте</b>
+    <div class="box">
+        <div class="rowline">
+            Уровень: <b id="agLevel">—</b>
         </div>
-        <div class="line">
-            Страйки: <b id="strikeText">смотри /whoami в боте</b>
+        <div class="rowline">
+            Страйки: <b id="agStrikes">—</b>
         </div>
-        <div class="line">
-            Блокировка: <b id="blockText">смотри /whoami в боте</b>
+        <div class="rowline">
+            Блокировка: <b id="agBlocked">—</b>
         </div>
         <div class="hint">
-            Уровень влияет на доступ к дорогим товарам.<br/>
-            Если блокировка = ДА, нужно написать админу.
+            Уровень даёт доступ к более дорогим товарам.<br/>
+            Если блокировка = ДА, напиши админу.
         </div>
     </div>
 
-    <div class="block-title">Как правильно работать 💼</div>
-    <div class="box">
-        <div class="line"><b>1.</b> В группе выбери пост, который хочешь продавать.</div>
-        <div class="line"><b>2.</b> Нажми кнопку площадки (OLX / Viber / ...). Ты взял бронь.</div>
-        <div class="line"><b>3.</b> Реально выложи объявление на этой площадке.</div>
-        <div class="line"><b>4.</b> Сразу скинь ссылку боту. Он отправит её админу на проверку.</div>
-        <div class="line"><b>5.</b> Если напишут <span class="warn">needs_fix</span> — исправь и пришли новую ссылку.</div>
-        <div class="hint">
-            Команда <b>/my</b> в боте покажет твои активные брони и сроки.
-        </div>
+    <div class="block-title">Твои активные брони</div>
+    <div id="agentReservations">
+        <div class="box">Загрузка...</div>
     </div>
 
+    <div class="block-title">Как не словить страйк 💣</div>
     <div class="box">
-        <div class="line"><b>Дедлайн по каждой броне:</b> обычно 12 часов.</div>
-        <div class="line">Не успел? Не скинул ссылку? Получаешь страйк <span class="bad">(-)</span>.</div>
-        <div class="line">Много страйков подряд → временный бан.</div>
+        <div class="rowline"><b>1.</b> Забрал площадку — реально выложи объявление.</div>
+        <div class="rowline"><b>2.</b> Сразу пришли ссылку боту (http/https).</div>
+        <div class="rowline"><b>3.</b> Дедлайн по броне ~12 часов.</div>
+        <div class="rowline"><b>4.</b> Если сказали <span class="warn">needs_fix</span> — исправь объявление и снова дай ссылку.</div>
+        <div class="rowline"><b>5.</b> Если просто забрал и пропал → страйк <span class="bad">(-)</span>.</div>
         <div class="pill-row">
             <div class="pill">Бронь = ответственность</div>
             <div class="pill">Ссылка = отчёт</div>
             <div class="pill">Просрочка = страйк</div>
         </div>
-    </div>
-
-    <div class="block-title">Сколько ты зарабатываешь 💸</div>
-    <div class="box">
-        <div class="line">
-            В каждом посте в группе есть строки:<br/>
-            <b>Цена:</b> сколько хочет владелец.<br/>
-            <b>Агенту:</b> сколько получаешь ты, если продал.
-        </div>
-        <div class="line">
-            Когда покупатель согласен — сразу пиши админу и владельцу товара.
-        </div>
-        <div class="line">
-            Товар помечают как <span class="bad">ПРОДАНО</span>, и остальные агенты его больше не пушат.
-        </div>
         <div class="hint">
-            Условия выдачи денег обсуждаются с админом. Всегда фиксируй договорённость письменно.
+            В боте команда <b>/my</b> покажет эти же брони и сроки.<br/>
+            /whoami — твой уровень, страйки и блок.
         </div>
-    </div>
-
-    <div class="block-title">Когда дают страйк 🚫</div>
-    <div class="box">
-        <div class="line">Ты забрал площадку “просто так”, но не выложил объявление.</div>
-        <div class="line">Ты взял бронь и пропал.</div>
-        <div class="line">Ты нарушил дедлайн и не скинул ссылку.</div>
-        <div class="line">Ты скинул фейковую или мусорную ссылку.</div>
-        <div class="hint">
-            После N страйков тебя ставят в блок.<br/>
-            Посмотреть свой статус: /whoami
-        </div>
-    </div>
-
-    <div class="block-title">Коротко 📝</div>
-    <div class="box">
-        <div class="line"><span class="ok">1. Бери бронь — только если готов реально работать.</span></div>
-        <div class="line"><span class="ok">2. Сразу заливай объявление на площадку.</span></div>
-        <div class="line"><span class="ok">3. Скинь ссылку через бота.</span></div>
-        <div class="line"><span class="warn">4. Если просят "needs_fix" — не игнорируй.</span></div>
-        <div class="line"><span class="bad">5. Не тяни время, таймер идёт.</span></div>
     </div>
 
     <div class="footer">
-        Этот экран — просто памятка.<br/>
-        Личная статистика: /my и /whoami в чате с ботом.<br/>
-        Если что-то непонятно — пиши админу.
+        Если покупатель согласился — сразу напиши админу и владельцу товара.
+        Тебе выплатят комиссию и товар пометят как ПРОДАН.
     </div>
 </div>
 
+
+<!-- КАБИНЕТ АДМИНА -->
+<div class="card" id="adminCard" style="display:none;">
+    <h1>Кабинет админа</h1>
+    <div class="sub" id="adminUserLine">Загрузка...</div>
+
+    <div class="block-title">Топ агентов</div>
+    <div id="adminAgents">
+        <div class="box">Загрузка...</div>
+    </div>
+
+    <div class="block-title">Последние посты</div>
+    <div id="adminPosts">
+        <div class="box">Загрузка...</div>
+    </div>
+
+    <div class="footer">
+        Подсказки:<br/>
+        /stats — список агентов с блоками/страйками/уровнями.<br/>
+        /postinfo &lt;post_id&gt; — история конкретного поста.<br/>
+        /fix post_id res_id причина — выставить needs_fix.
+    </div>
+</div>
+
+
 <script>
 (function(){
-    // Дёргаем Telegram WebApp API, чтобы красиво развернуться
+    // === НАСТРОЙКИ ===
+    // ВАЖНО: Замени на домен, где запущен твой бот+API (FastAPI).
+    // Например: const API_BASE = "https://my-bot.up.railway.app";
+    const API_BASE = "https://YOUR-BACKEND-DOMAIN";
+
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
     if (tg) {
         try { tg.ready(); } catch(e){}
         try { tg.expand(); } catch(e){}
     }
 
-    // Попробуем показать кто зашёл (user id, username)
-    let uidText = "—";
-    let unameText = "";
+    // кто зашёл
+    let uid = null;
+    let uname = "";
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        uidText = tg.initDataUnsafe.user.id || "—";
-        unameText = tg.initDataUnsafe.user.username || "";
+        uid = tg.initDataUnsafe.user.id || null;
+        uname = tg.initDataUnsafe.user.username || "";
     }
 
-    const userLineEl = document.getElementById("userLine");
-    userLineEl.innerText = "Ты вошёл как ID: " + uidText + (unameText ? (" @" + unameText) : "");
+    // какую роль хотим показать (agent / admin)
+    const params = new URLSearchParams(window.location.search);
+    const role = params.get("role") || "agent";
 
-    // Мы не можем показать реальные "уровень / страйки / блок"
-    // без сервера и без запроса к боту,
-    // поэтому говорим пользователю смотреть /whoami
-    // Значения в карточке уже стоят как "смотри /whoami".
+    // показываем/прячем блоки сразу
+    const agentCard = document.getElementById("agentCard");
+    const adminCard = document.getElementById("adminCard");
+
+    if (role === "admin") {
+        adminCard.style.display = "block";
+        agentCard.style.display = "none";
+    } else {
+        agentCard.style.display = "block";
+        adminCard.style.display = "none";
+    }
+
+    // подписи кто зашёл
+    const agentUserLine = document.getElementById("agentUserLine");
+    const adminUserLine = document.getElementById("adminUserLine");
+    const userLineText = "ID: " + (uid ?? "—") + (uname ? (" @" + uname) : "");
+    if (agentUserLine) agentUserLine.innerText = userLineText;
+    if (adminUserLine) adminUserLine.innerText = userLineText;
+
+    // если uid нет, дальше смысла нет
+    if (!uid) {
+        if (role === "agent") {
+            fillAgentError("Не удалось определить твой ID из Telegram WebApp.");
+        } else {
+            fillAdminError("Не удалось определить твой ID из Telegram WebApp.");
+        }
+        return;
+    }
+
+    // грузим данные в зависимости от роли
+    if (role === "admin") {
+        fetchAdmin(uid);
+    } else {
+        fetchAgent(uid);
+    }
+
+    // ---------------------------
+    // РЕНДЕР АГЕНТА
+    // ---------------------------
+    function fillAgentError(msg){
+        const box = document.createElement("div");
+        box.className = "box";
+        box.textContent = msg;
+        const wrap = document.getElementById("agentReservations");
+        wrap.innerHTML = "";
+        wrap.appendChild(box);
+        document.getElementById("agLevel").innerText = "—";
+        document.getElementById("agStrikes").innerText = "—";
+        document.getElementById("agBlocked").innerText = "—";
+    }
+
+    function renderAgent(data){
+        // статус
+        document.getElementById("agLevel").innerText = data.level ?? "0";
+        document.getElementById("agStrikes").innerText = data.strike_count ?? "0";
+        document.getElementById("agBlocked").innerText = data.blocked ? "ДА" : "нет";
+
+        // брони
+        const wrap = document.getElementById("agentReservations");
+        wrap.innerHTML = "";
+
+        if (!data.active_reservations || data.active_reservations.length === 0){
+            const box = document.createElement("div");
+            box.className = "box";
+            box.innerHTML = "У тебя нет активных броней сейчас.<br/>Команда /my в боте покажет актуально.";
+            wrap.appendChild(box);
+            return;
+        }
+
+        data.active_reservations.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "mini-post";
+
+            const head = document.createElement("div");
+            head.className = "head";
+            head.textContent = `post_id=${item.post_id} | ${item.resource_name} | ${item.status}`;
+            div.appendChild(head);
+
+            const meta = document.createElement("div");
+            meta.className = "meta";
+            let arr = [];
+            if (item.expires_at) arr.push("дедлайн: " + item.expires_at);
+            if (item.submitted_link) arr.push("ссылка: " + item.submitted_link);
+            if (item.fix_reason) arr.push("правка: " + item.fix_reason);
+            meta.innerHTML = arr.join("<br/>") || "—";
+            div.appendChild(meta);
+
+            const info = document.createElement("div");
+            info.className = "meta";
+            let infoLines = [];
+            if (item.post_price) infoLines.push("Цена: " + item.post_price);
+            if (item.post_agent_fee) infoLines.push("Агенту: " + item.post_agent_fee);
+            if (item.post_conditions) infoLines.push("Условия: " + item.post_conditions);
+            if (item.post_deleted) infoLines.push("Статус поста: СНЯТО");
+            if (item.post_sold) infoLines.push("Статус поста: ПРОДАНО");
+            info.innerHTML = infoLines.join("<br/>") || "";
+            div.appendChild(info);
+
+            wrap.appendChild(div);
+        });
+    }
+
+    function fetchAgent(uid){
+        fetch(`${API_BASE}/api/agent_dashboard?user_id=${encodeURIComponent(uid)}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data || !data.ok){
+                    fillAgentError("Ошибка загрузки данных агента.");
+                    return;
+                }
+                renderAgent(data);
+            })
+            .catch(e => {
+                fillAgentError("Сервер недоступен или блокирует запрос.");
+            });
+    }
+
+    // ---------------------------
+    // РЕНДЕР АДМИНА
+    // ---------------------------
+    function fillAdminError(msg){
+        const agentsWrap = document.getElementById("adminAgents");
+        const postsWrap = document.getElementById("adminPosts");
+        agentsWrap.innerHTML = "";
+        postsWrap.innerHTML = "";
+
+        const box1 = document.createElement("div");
+        box1.className = "box";
+        box1.textContent = msg;
+        agentsWrap.appendChild(box1);
+
+        const box2 = document.createElement("div");
+        box2.className = "box";
+        box2.textContent = msg;
+        postsWrap.appendChild(box2);
+    }
+
+    function renderAdmin(data){
+        // top agents
+        const agentsWrap = document.getElementById("adminAgents");
+        agentsWrap.innerHTML = "";
+        if (!data.top_agents || data.top_agents.length === 0){
+            const box = document.createElement("div");
+            box.className = "box";
+            box.textContent = "Пока нет данных по агентам.";
+            agentsWrap.appendChild(box);
+        } else {
+            const table = document.createElement("div");
+            table.className = "table-block";
+
+            data.top_agents.forEach(a => {
+                const row = document.createElement("div");
+                row.className = "table-row";
+                row.innerHTML = `
+                    <strong>${a.user_id}</strong>
+                    | lvl ${a.level}
+                    | strikes ${a.strike_count}
+                    | blocked ${a.blocked ? "ДА" : "нет"}
+                `;
+                table.appendChild(row);
+            });
+
+            agentsWrap.appendChild(table);
+        }
+
+        // recent posts
+        const postsWrap = document.getElementById("adminPosts");
+        postsWrap.innerHTML = "";
+
+        if (!data.recent_posts || data.recent_posts.length === 0){
+            const box = document.createElement("div");
+            box.className = "box";
+            box.textContent = "Постов нет.";
+            postsWrap.appendChild(box);
+        } else {
+            data.recent_posts.forEach(p => {
+                const div = document.createElement("div");
+                div.className = "mini-post";
+
+                const head = document.createElement("div");
+                head.className = "head";
+                head.textContent = `post_id=${p.post_id} | lvl>=${p.min_level_required}`;
+                div.appendChild(head);
+
+                const meta = document.createElement("div");
+                meta.className = "meta";
+                const statusLines = [];
+                if (p.is_deleted) statusLines.push("СНЯТО");
+                if (p.is_sold) statusLines.push("ПРОДАНО");
+                meta.innerHTML = `
+                    Цена: ${p.price || "—"}<br/>
+                    Агенту: ${p.agent_fee || "—"}<br/>
+                    Условия: ${p.conditions || "—"}<br/>
+                    Статус: ${statusLines.join(", ") || "активен"}
+                `;
+                div.appendChild(meta);
+
+                if (p.resources && p.resources.length){
+                    const resHeader = document.createElement("div");
+                    resHeader.className = "res-header";
+                    resHeader.textContent = "Площадки:";
+                    div.appendChild(resHeader);
+
+                    p.resources.forEach(r => {
+                        const rr = document.createElement("div");
+                        rr.className = "res-row";
+                        rr.innerHTML = `
+                            ${r.resource_name} → ${r.status}
+                            ${r.agent_user_id ? (" | агент " + r.agent_user_id) : ""}
+                            ${r.expires_at ? (" | дедлайн " + r.expires_at) : ""}<br/>
+                            ${r.submitted_link ? ("ссылка: " + r.submitted_link + "<br/>") : ""}
+                            ${r.fix_reason ? ("fix: " + r.fix_reason) : ""}
+                        `;
+                        div.appendChild(rr);
+                    });
+                }
+
+                postsWrap.appendChild(div);
+            });
+        }
+    }
+
+    function fetchAdmin(uid){
+        fetch(`${API_BASE}/api/admin_dashboard?user_id=${encodeURIComponent(uid)}`)
+            .then(r => r.json())
+            .then(data => {
+                if (!data || !data.ok || !data.is_admin){
+                    fillAdminError("Нет доступа или сервер не дал данные админа.");
+                    return;
+                }
+                renderAdmin(data);
+            })
+            .catch(e => {
+                fillAdminError("Сервер недоступен или блокирует запрос.");
+            });
+    }
+
 })();
 </script>
 
